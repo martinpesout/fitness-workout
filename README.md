@@ -1,1 +1,3 @@
-# fitness-workout
+# Aktuální trénink
+
+Generovaný přehled
