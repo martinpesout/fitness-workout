@@ -1,0 +1,730 @@
+<!doctype html>
+<html lang="cs">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Tréninkový blok 001: síla, kruhy a prostor pro kondici · aktuální trénink</title>
+    <style>
+      :root {
+        color-scheme: light dark;
+        font-family: "Avenir Next", Avenir, ui-sans-serif, system-ui, sans-serif;
+        --page-bg: #e8e1d6;
+        --surface: #f7f2e9;
+        --surface-raised: #fbf7f0;
+        --surface-muted: #ded5c8;
+        --ink: #292820;
+        --muted: #716b61;
+        --border: #cfc3b2;
+        --accent: #a24c31;
+        --accent-soft: #ead4c8;
+        --shadow: 0 1.5rem 4rem rgb(67 50 34 / 12%);
+      }
+      * { box-sizing: border-box; }
+      body { margin: 0; background: var(--page-bg); color: var(--ink); }
+      .page { width: min(100% - 2rem, 68rem); margin: 0 auto; padding: 2.5rem 0 5rem; }
+      .page-header { margin: 0 0 1.5rem; padding: 0 .25rem; }
+      .eyebrow,
+      .section-label,
+      .current-kicker {
+        margin: 0;
+        color: var(--accent);
+        font-size: .72rem;
+        font-weight: 800;
+        letter-spacing: .12em;
+        text-transform: uppercase;
+      }
+      .page-header h1 {
+        margin: .4rem 0 0;
+        font-family: Georgia, "Times New Roman", serif;
+        font-size: clamp(1.8rem, 4vw, 3rem);
+        font-weight: 500;
+        line-height: 1.05;
+        letter-spacing: -.035em;
+      }
+      .rotation { margin: .65rem 0 0; color: var(--muted); font-size: .92rem; }
+      .workout { border: 1px solid var(--border); background: var(--surface-raised); }
+      .current {
+        padding: clamp(1.25rem, 4vw, 2.75rem);
+        border: 2px solid var(--border);
+        border-radius: 1.65rem;
+        box-shadow: var(--shadow);
+      }
+      .current-kicker { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem; }
+      .current-kicker .status { display: inline-flex; align-items: center; gap: .45rem; }
+      .current-kicker .status::before {
+        content: "";
+        width: .5rem;
+        height: .5rem;
+        border-radius: 50%;
+        background: var(--accent);
+      }
+      .current-header h2 {
+        max-width: 48rem;
+        margin: .65rem 0 0;
+        font-family: Georgia, "Times New Roman", serif;
+        font-size: clamp(2rem, 5vw, 3.35rem);
+        font-weight: 500;
+        line-height: 1.02;
+        letter-spacing: -.04em;
+      }
+      .workout-duration {
+        display: inline-flex;
+        align-items: center;
+        gap: .55rem;
+        margin: 1rem 0 2.25rem;
+        color: var(--muted);
+        font-size: .95rem;
+        font-weight: 650;
+      }
+      .workout-duration::before {
+        content: "";
+        width: .5rem;
+        height: .5rem;
+        border-radius: 50%;
+        background: var(--accent);
+      }
+      .exercise-list { display: grid; gap: 0; }
+      .exercise {
+        display: grid;
+        grid-template-columns: minmax(0, 1.45fr) minmax(16rem, .85fr);
+        column-gap: 1rem;
+        align-items: center;
+        padding: 1rem .25rem;
+        border-bottom: 1px solid var(--border);
+      }
+      .exercise-heading {
+        display: grid;
+        grid-template-columns: 2.75rem minmax(0, 1fr);
+        gap: .8rem;
+        align-items: center;
+      }
+      .exercise-position,
+      .upcoming-template {
+        display: grid;
+        place-items: center;
+        border-radius: 50%;
+        background: var(--ink);
+        color: var(--surface-raised);
+        font-family: system-ui, sans-serif;
+        font-size: 1rem;
+        font-weight: 600;
+        font-variant-numeric: lining-nums tabular-nums;
+        line-height: 1;
+        text-align: center;
+      }
+      .exercise-position {
+        inline-size: 2.5rem;
+        block-size: 2.5rem;
+      }
+      .exercise h3 { margin: 0; font-size: 1.125rem; line-height: 1.25; }
+      .exercise-metrics {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: .5rem;
+        margin: 0;
+        text-align: right;
+      }
+      .exercise-metrics div { min-width: 0; }
+      .exercise-metrics dt {
+        margin-top: .2rem;
+        color: var(--muted);
+        font-size: .72rem;
+        font-weight: 600;
+        line-height: 1.2;
+      }
+      .exercise-metrics dd {
+        margin: 0;
+        font-size: 1.125rem;
+        font-variant-numeric: tabular-nums;
+        font-weight: 600;
+        line-height: 1.1;
+      }
+      .exercise-rpe dd { color: var(--accent); }
+      .notes {
+        grid-column: 1 / -1;
+        margin: .55rem 0 0 3.55rem;
+        color: var(--muted);
+        font-size: .85rem;
+        line-height: 1.45;
+      }
+      .notes a { color: var(--accent); text-underline-offset: .18em; }
+      .exercise-history {
+        grid-column: 1 / -1;
+        min-inline-size: 0;
+        margin-block: .8rem 0;
+        margin-inline-start: 3.55rem;
+        padding: .75rem .9rem;
+        border-inline-start: 2px solid var(--border);
+        border-radius: .25rem;
+        background: var(--surface);
+        color: var(--muted);
+        font-size: .85rem;
+        line-height: 1.55;
+        overflow-wrap: anywhere;
+      }
+      .exercise-history p { margin-block: 0 .45rem; }
+      .exercise-history strong,
+      .exercise-history-context { color: var(--ink); font-weight: 600; }
+      .exercise-history-latest { font-variant-numeric: tabular-nums; }
+      .exercise-history-details > summary {
+        padding-block: .5rem;
+        cursor: pointer;
+        color: var(--accent);
+        font-weight: 600;
+      }
+      .exercise-history-details > summary:focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: 2px;
+        border-radius: .2rem;
+      }
+      .exercise-history-details ol { margin-block: .25rem 0; padding-inline-start: 1.25rem; }
+      .exercise-history-details li + li { margin-block-start: .85rem; }
+      .exercise-history-source { font-size: .75rem; }
+      .exercise-history code { overflow-wrap: anywhere; }
+      .exercise-history-empty { padding-block: .5rem; }
+      .superset {
+        margin: .25rem 0 .65rem;
+        padding: 1.25rem 1.5rem .2rem;
+        border: 1px solid var(--border);
+        border-radius: 1rem;
+      }
+      .superset-title {
+        margin: 0 0 .35rem;
+        font-family: Georgia, "Times New Roman", serif;
+        font-size: 1.35rem;
+        font-weight: 500;
+      }
+      .superset-exercises .exercise:last-child { border-bottom: 0; }
+      .upcoming-list { margin-top: 2rem; }
+      .upcoming-list .section-label,
+      .guidance-list .section-label { margin: 0 0 .65rem .25rem; }
+      .upcoming {
+        margin-top: .65rem;
+        border-radius: .9rem;
+        overflow: clip;
+      }
+      .upcoming > summary {
+        display: grid;
+        grid-template-columns: 2.4rem minmax(0, 1fr) auto;
+        gap: .9rem;
+        align-items: center;
+        padding: 1rem 1.1rem;
+        cursor: pointer;
+        list-style: none;
+      }
+      .upcoming > summary::-webkit-details-marker { display: none; }
+      .upcoming > summary::marker { content: ""; }
+      .upcoming-template {
+        inline-size: 2.2rem;
+        block-size: 2.2rem;
+      }
+      .upcoming-focus { display: block; font-size: .95rem; line-height: 1.25; }
+      .upcoming-duration { display: block; margin-top: .2rem; color: var(--muted); font-size: .76rem; }
+      .upcoming-toggle {
+        display: grid;
+        place-items: center;
+        width: 1.5rem;
+        height: 1.5rem;
+        color: var(--accent);
+        font-size: 1.25rem;
+        font-weight: 700;
+        line-height: 1;
+      }
+      .upcoming-toggle span { line-height: 1; }
+      .upcoming-toggle-open { display: none; }
+      .upcoming[open] .upcoming-toggle-closed { display: none; }
+      .upcoming[open] .upcoming-toggle-open { display: inline; }
+      .upcoming-body { padding: .5rem 1.35rem 1.25rem; border-top: 1px solid var(--border); }
+      .guidance-list { display: grid; grid-template-columns: 1fr; gap: .75rem; margin-top: 2.25rem; }
+      .guidance {
+        padding: 1.25rem 1.35rem;
+        border: 1px solid var(--border);
+        border-radius: .9rem;
+        background: var(--surface-muted);
+        color: #514c43;
+      }
+      .guidance h2 {
+        margin: 0 0 .65rem;
+        color: var(--ink);
+        font-family: Georgia, "Times New Roman", serif;
+        font-size: 1.2rem;
+        font-weight: 500;
+      }
+      .guidance p { margin: .5rem 0; line-height: 1.55; }
+      .guidance ul { margin: .5rem 0 0; padding-left: 1.25rem; line-height: 1.55; }
+      .guidance li + li { margin-top: .45rem; }
+      @media (max-width: 42rem) {
+        .page { width: min(100% - 1rem, 68rem); padding-top: 1.25rem; }
+        .current { padding: 1.4rem 1rem; border-radius: 1.25rem; }
+        .exercise { grid-template-columns: 1fr; padding: 1rem 0; }
+        .exercise-metrics { margin: .75rem 0 0 3.55rem; text-align: left; }
+        .notes { margin-left: 3.55rem; }
+        .exercise-history { margin-inline-start: 0; }
+        .superset { padding: 1rem 1rem .1rem; }
+        .upcoming > summary { padding: .9rem; }
+        .upcoming-body { padding: .35rem 1rem 1rem; }
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --page-bg: #1b1a17;
+          --surface: #24231f;
+          --surface-raised: #292722;
+          --surface-muted: #34312b;
+          --ink: #f3eee5;
+          --muted: #bcb4a8;
+          --border: #504a40;
+          --accent: #e59678;
+          --accent-soft: #563526;
+          --shadow: 0 1.5rem 4rem rgb(0 0 0 / 24%);
+        }
+        .guidance { color: #cec6ba; }
+      }
+      @media print {
+        :root {
+          --page-bg: #fff;
+          --surface: #fff;
+          --surface-raised: #fff;
+          --surface-muted: #f3f0eb;
+          --ink: #000;
+          --muted: #444;
+          --border: #aaa;
+          --accent: #752f1d;
+          --shadow: none;
+        }
+        .page { width: 100%; padding: 0; }
+        details:not([open]) > :not(summary) { display: block; }
+        .current { box-shadow: none; }
+        .exercise-history-details { display: none; }
+        .workout,
+        .guidance { break-inside: avoid; }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="page">
+      <header class="page-header">
+        <p class="eyebrow">Aktivní tréninkový blok</p>
+        <h1>Tréninkový blok 001: síla, kruhy a prostor pro kondici</h1>
+        <p class="rotation">Rotace B → C → A</p>
+      </header>
+
+      
+      <section class="workout current" data-template="B">
+        <header class="current-header">
+          <p class="current-kicker">
+            <span class="status">Cvičit nyní</span>
+            <span aria-hidden="true">·</span>
+            <span>Trénink B</span>
+          </p>
+          <h2>kruhy, kalistenická síla a střed těla</h2>
+          <p class="workout-duration">Očekávaná délka 50–60 minut</p>
+        </header>
+        <div class="exercise-list"><section class="superset">
+  <h3 class="superset-title">Supersérie 1</h3>
+  <div class="superset-exercises"><article class="exercise">
+  <header class="exercise-heading">
+    <span class="exercise-position">1A</span>
+    <h3>Ring chin-up</h3>
+  </header>
+  <dl class="exercise-metrics">
+    <div><dd>3</dd><dt>Série</dt></div>
+    <div><dd>5–8</dd><dt>Opakování</dt></div>
+    <div class="exercise-rpe"><dd>8</dd><dt>Cílové RPE</dt></div>
+  </dl>
+  <p class="notes">První cvik supersérie; po sérii bezpečně přejdi na 1B</p>
+  <aside class="exercise-history" aria-label="Minulé výkony">
+  <p class="exercise-history-latest"><strong>Minule:</strong> 3. 9. 2026 · tento blok · dokončeno<br>
+    Zátěž: vlastní hmotnost · Série: 3 · Opakování / výdrž: 8, 8, 8 · RPE: 8, 8, 9–10</p>
+  <details class="exercise-history-details">
+    <summary>Historie cviku (1)</summary>
+    <ol><li>
+  <p class="exercise-history-context">3. 9. 2026 · tento blok · dokončeno</p>
+  <p>Zátěž: vlastní hmotnost · Série: 3 · Opakování / výdrž: 8, 8, 8 · RPE: 8, 8, 9–10</p>
+  <p>Ve třetí sérii překročeno cílové RPE 8</p>
+  <p class="exercise-history-source">Zdroj: <code>activities/2026/2026-09-03-strength-B.md</code></p>
+</li>
+</ol>
+  </details>
+</aside>
+
+</article>
+<article class="exercise">
+  <header class="exercise-heading">
+    <span class="exercise-position">1B</span>
+    <h3>Strict ring dips</h3>
+  </header>
+  <dl class="exercise-metrics">
+    <div><dd>3</dd><dt>Série</dt></div>
+    <div><dd>5–8</dd><dt>Opakování</dt></div>
+    <div class="exercise-rpe"><dd>8</dd><dt>Cílové RPE</dt></div>
+  </dl>
+  <p class="notes">Druhý cvik supersérie; potom pauza 2–3 minuty a návrat na 1A</p>
+  <aside class="exercise-history" aria-label="Minulé výkony">
+  <p class="exercise-history-latest"><strong>Minule:</strong> 3. 9. 2026 · tento blok · dokončeno<br>
+    Zátěž: vlastní hmotnost · Série: 3 · Opakování / výdrž: 8, 8, 8 · RPE: 8, 8, 9–10</p>
+  <details class="exercise-history-details">
+    <summary>Historie cviku (1)</summary>
+    <ol><li>
+  <p class="exercise-history-context">3. 9. 2026 · tento blok · dokončeno</p>
+  <p>Zátěž: vlastní hmotnost · Série: 3 · Opakování / výdrž: 8, 8, 8 · RPE: 8, 8, 9–10</p>
+  <p>Ve třetí sérii překročeno cílové RPE 8</p>
+  <p class="exercise-history-source">Zdroj: <code>activities/2026/2026-09-03-strength-B.md</code></p>
+</li>
+</ol>
+  </details>
+</aside>
+
+</article>
+</div>
+</section>
+<article class="exercise">
+  <header class="exercise-heading">
+    <span class="exercise-position">2</span>
+    <h3>Ring row</h3>
+  </header>
+  <dl class="exercise-metrics">
+    <div><dd>3</dd><dt>Série</dt></div>
+    <div><dd>8–12</dd><dt>Opakování</dt></div>
+    <div class="exercise-rpe"><dd>8</dd><dt>Cílové RPE</dt></div>
+  </dl>
+  <p class="notes">Pauza 90 sekund; obtížnost uprav polohou chodidel</p>
+  <aside class="exercise-history" aria-label="Minulé výkony">
+  <p class="exercise-history-latest"><strong>Minule:</strong> 3. 9. 2026 · tento blok · dokončeno<br>
+    Zátěž: vlastní hmotnost · Série: 3 · Opakování / výdrž: 12, 11, 11 · RPE: 8, 8, 8</p>
+  <details class="exercise-history-details">
+    <summary>Historie cviku (1)</summary>
+    <ol><li>
+  <p class="exercise-history-context">3. 9. 2026 · tento blok · dokončeno</p>
+  <p>Zátěž: vlastní hmotnost · Série: 3 · Opakování / výdrž: 12, 11, 11 · RPE: 8, 8, 8</p>
+  <p>Všechny série v předepsaném rozsahu při cílovém RPE</p>
+  <p class="exercise-history-source">Zdroj: <code>activities/2026/2026-09-03-strength-B.md</code></p>
+</li>
+</ol>
+  </details>
+</aside>
+
+</article>
+<article class="exercise">
+  <header class="exercise-heading">
+    <span class="exercise-position">3</span>
+    <h3>Hanging knee raise</h3>
+  </header>
+  <dl class="exercise-metrics">
+    <div><dd>3</dd><dt>Série</dt></div>
+    <div><dd>8–12</dd><dt>Opakování</dt></div>
+    <div class="exercise-rpe"><dd>8</dd><dt>Cílové RPE</dt></div>
+  </dl>
+  <p class="notes">Pauza 60–90 sekund; bez švihu; <a href="https://www.youtube.com/results?search_query=hanging+knee+raise+proper+form" target="_blank" rel="noreferrer">technika</a></p>
+  <aside class="exercise-history" aria-label="Minulé výkony">
+  <p class="exercise-history-latest"><strong>Minule:</strong> 3. 9. 2026 · tento blok · dokončeno<br>
+    Zátěž: vlastní hmotnost · Série: 3 · Opakování / výdrž: 12, 10, 10 · RPE: 8, 8, 8</p>
+  <details class="exercise-history-details">
+    <summary>Historie cviku (1)</summary>
+    <ol><li>
+  <p class="exercise-history-context">3. 9. 2026 · tento blok · dokončeno</p>
+  <p>Zátěž: vlastní hmotnost · Série: 3 · Opakování / výdrž: 12, 10, 10 · RPE: 8, 8, 8</p>
+  <p>Všechny série v předepsaném rozsahu při cílovém RPE</p>
+  <p class="exercise-history-source">Zdroj: <code>activities/2026/2026-09-03-strength-B.md</code></p>
+</li>
+</ol>
+  </details>
+</aside>
+
+</article>
+</div>
+      </section>
+
+      
+      
+        <section class="upcoming-list" aria-labelledby="upcoming-heading">
+          <p class="section-label" id="upcoming-heading">Následující tréninky</p>
+          
+          <details class="workout upcoming" data-template="C">
+            <summary>
+              <span class="upcoming-template">C</span>
+              <span>
+                <strong class="upcoming-focus">síla tahu a tlaků horní poloviny těla</strong>
+                <span class="upcoming-duration">Očekávaná délka 55–70 minut</span>
+              </span>
+              <span class="upcoming-toggle" aria-hidden="true">
+                <span class="upcoming-toggle-closed">+</span>
+                <span class="upcoming-toggle-open">−</span>
+              </span>
+            </summary>
+            <div class="upcoming-body"><div class="exercise-list"><article class="exercise">
+  <header class="exercise-heading">
+    <span class="exercise-position">1</span>
+    <h3>Deadlift</h3>
+  </header>
+  <dl class="exercise-metrics">
+    <div><dd>2</dd><dt>Série</dt></div>
+    <div><dd>3–5</dd><dt>Opakování</dt></div>
+    <div class="exercise-rpe"><dd>7–8</dd><dt>Cílové RPE</dt></div>
+  </dl>
+  <p class="notes">Pauza 3 minuty; nižší objem chrání regeneraci před dalším A</p>
+  <aside class="exercise-history" aria-label="Minulé výkony">
+  <p class="exercise-history-latest"><strong>Minule:</strong> 6. 9. 2026 · tento blok · dokončeno<br>
+    Zátěž: 20 + 20 kg kotoučů + 20 kg osa = 60 kg celkem · Série: 2 · Opakování / výdrž: 5, 5 · RPE: 8, 7</p>
+  <details class="exercise-history-details">
+    <summary>Historie cviku (2)</summary>
+    <ol><li>
+  <p class="exercise-history-context">6. 9. 2026 · tento blok · dokončeno</p>
+  <p>Zátěž: 20 + 20 kg kotoučů + 20 kg osa = 60 kg celkem · Série: 2 · Opakování / výdrž: 5, 5 · RPE: 8, 7</p>
+  <p>Druhá série působila lehčeji a naznačila rezervu pro vyšší zátěž; před příštím deadliftem by pomohla delší specifická rozcvička</p>
+  <p class="exercise-history-source">Zdroj: <code>activities/2026/2026-09-06-strength-C.md</code></p>
+</li>
+<li>
+  <p class="exercise-history-context">1. 9. 2026 · tento blok · dokončeno</p>
+  <p>Zátěž: 15 + 15 kg kotoučů + 20 kg osa = 50 kg celkem · Série: 3 · Opakování / výdrž: 8, 8, 8 · RPE: 8</p>
+  <p>Oprava uživatele ze dne 8. 9. 2026: místo předepsaného Romanian deadlift byl omylem proveden klasický deadlift; původně byl výkon chybně zapsán jako Romanian deadlift</p>
+  <p class="exercise-history-source">Zdroj: <code>activities/2026/2026-09-01-strength-A.md</code></p>
+</li>
+</ol>
+  </details>
+</aside>
+
+</article>
+<article class="exercise">
+  <header class="exercise-heading">
+    <span class="exercise-position">2</span>
+    <h3>Incline dumbbell bench press</h3>
+  </header>
+  <dl class="exercise-metrics">
+    <div><dd>3</dd><dt>Série</dt></div>
+    <div><dd>6–10</dd><dt>Opakování</dt></div>
+    <div class="exercise-rpe"><dd>8</dd><dt>Cílové RPE</dt></div>
+  </dl>
+  <p class="notes">Pauza 2 minuty; stabilní opora o lavici</p>
+  <aside class="exercise-history" aria-label="Minulé výkony">
+  <p class="exercise-history-latest"><strong>Minule:</strong> 6. 9. 2026 · tento blok · dokončeno<br>
+    Zátěž: 2 × 22,5 kg · Série: 3 · Opakování / výdrž: 10, 10, 10 · RPE: 8, 8–9, 8–9</p>
+  <details class="exercise-history-details">
+    <summary>Historie cviku (1)</summary>
+    <ol><li>
+  <p class="exercise-history-context">6. 9. 2026 · tento blok · dokončeno</p>
+  <p>Zátěž: 2 × 22,5 kg · Série: 3 · Opakování / výdrž: 10, 10, 10 · RPE: 8, 8–9, 8–9</p>
+  <p>Dosažena horní hranice opakování; druhá a třetí série mírně překročily cílové RPE 8</p>
+  <p class="exercise-history-source">Zdroj: <code>activities/2026/2026-09-06-strength-C.md</code></p>
+</li>
+</ol>
+  </details>
+</aside>
+
+</article>
+<article class="exercise">
+  <header class="exercise-heading">
+    <span class="exercise-position">3</span>
+    <h3>Pendlay row</h3>
+  </header>
+  <dl class="exercise-metrics">
+    <div><dd>3</dd><dt>Série</dt></div>
+    <div><dd>6–8</dd><dt>Opakování</dt></div>
+    <div class="exercise-rpe"><dd>8</dd><dt>Cílové RPE</dt></div>
+  </dl>
+  <p class="notes">Pauza 2 minuty; každé opakování začíná z podlahy</p>
+  <aside class="exercise-history" aria-label="Minulé výkony">
+  <p class="exercise-history-latest"><strong>Minule:</strong> 6. 9. 2026 · tento blok · dokončeno<br>
+    Zátěž: 15 + 15 kg kotoučů + 20 kg osa = 50 kg celkem · Série: 3 · Opakování / výdrž: 6, 7, 8 · RPE: 8, 8, 8</p>
+  <details class="exercise-history-details">
+    <summary>Historie cviku (1)</summary>
+    <ol><li>
+  <p class="exercise-history-context">6. 9. 2026 · tento blok · dokončeno</p>
+  <p>Zátěž: 15 + 15 kg kotoučů + 20 kg osa = 50 kg celkem · Série: 3 · Opakování / výdrž: 6, 7, 8 · RPE: 8, 8, 8</p>
+  <p>Postupné zvýšení počtu opakování v předepsaném rozsahu při cílovém RPE</p>
+  <p class="exercise-history-source">Zdroj: <code>activities/2026/2026-09-06-strength-C.md</code></p>
+</li>
+</ol>
+  </details>
+</aside>
+
+</article>
+<article class="exercise">
+  <header class="exercise-heading">
+    <span class="exercise-position">4</span>
+    <h3>Z-press</h3>
+  </header>
+  <dl class="exercise-metrics">
+    <div><dd>2</dd><dt>Série</dt></div>
+    <div><dd>6–8</dd><dt>Opakování</dt></div>
+    <div class="exercise-rpe"><dd>8</dd><dt>Cílové RPE</dt></div>
+  </dl>
+  <p class="notes">Pauza 2 minuty; ukonči sérii při ztrátě vzpřímené pozice</p>
+  <aside class="exercise-history" aria-label="Minulé výkony">
+  <p class="exercise-history-latest"><strong>Minule:</strong> 6. 9. 2026 · tento blok · dokončeno<br>
+    Zátěž: 10 + 10 kg kotoučů + 20 kg osa = 40 kg celkem · Série: 2 · Opakování / výdrž: 6, 7 · RPE: 8, 8</p>
+  <details class="exercise-history-details">
+    <summary>Historie cviku (1)</summary>
+    <ol><li>
+  <p class="exercise-history-context">6. 9. 2026 · tento blok · dokončeno</p>
+  <p>Zátěž: 10 + 10 kg kotoučů + 20 kg osa = 40 kg celkem · Série: 2 · Opakování / výdrž: 6, 7 · RPE: 8, 8</p>
+  <p>Obě série v předepsaném rozsahu při cílovém RPE</p>
+  <p class="exercise-history-source">Zdroj: <code>activities/2026/2026-09-06-strength-C.md</code></p>
+</li>
+</ol>
+  </details>
+</aside>
+
+</article>
+</div></div>
+          </details>
+          
+          <details class="workout upcoming" data-template="A">
+            <summary>
+              <span class="upcoming-template">A</span>
+              <span>
+                <strong class="upcoming-focus">síla dolní poloviny těla a stabilita trupu</strong>
+                <span class="upcoming-duration">Očekávaná délka 55–70 minut</span>
+              </span>
+              <span class="upcoming-toggle" aria-hidden="true">
+                <span class="upcoming-toggle-closed">+</span>
+                <span class="upcoming-toggle-open">−</span>
+              </span>
+            </summary>
+            <div class="upcoming-body"><div class="exercise-list"><article class="exercise">
+  <header class="exercise-heading">
+    <span class="exercise-position">1</span>
+    <h3>Back squat</h3>
+  </header>
+  <dl class="exercise-metrics">
+    <div><dd>3</dd><dt>Série</dt></div>
+    <div><dd>4–6</dd><dt>Opakování</dt></div>
+    <div class="exercise-rpe"><dd>7–8</dd><dt>Cílové RPE</dt></div>
+  </dl>
+  <p class="notes">Pauza 2,5–3 minuty; použij safety arms</p>
+  <aside class="exercise-history" aria-label="Minulé výkony">
+  <p class="exercise-history-latest"><strong>Minule:</strong> 8. 9. 2026 · tento blok · dokončeno<br>
+    Zátěž: 25 + 25 kg kotoučů + 20 kg osa = 70 kg celkem · Série: 3 · Opakování / výdrž: 6, 6, 6 · RPE: 8, 8, 8</p>
+  <details class="exercise-history-details">
+    <summary>Historie cviku (2)</summary>
+    <ol><li>
+  <p class="exercise-history-context">8. 9. 2026 · tento blok · dokončeno</p>
+  <p>Zátěž: 25 + 25 kg kotoučů + 20 kg osa = 70 kg celkem · Série: 3 · Opakování / výdrž: 6, 6, 6 · RPE: 8, 8, 8</p>
+  <p>Všechny série na horní hranici předepsaného rozsahu</p>
+  <p class="exercise-history-source">Zdroj: <code>activities/2026/2026-09-08-strength-A.md</code></p>
+</li>
+<li>
+  <p class="exercise-history-context">1. 9. 2026 · tento blok · dokončeno</p>
+  <p>Zátěž: 25 + 25 kg kotoučů + 20 kg osa = 70 kg celkem · Série: 3 · Opakování / výdrž: 5, 5, 5 · RPE: 8</p>
+  <p>Pracovní série dokončeny podle plánu</p>
+  <p class="exercise-history-source">Zdroj: <code>activities/2026/2026-09-01-strength-A.md</code></p>
+</li>
+</ol>
+  </details>
+</aside>
+
+</article>
+<article class="exercise">
+  <header class="exercise-heading">
+    <span class="exercise-position">2</span>
+    <h3>Romanian deadlift</h3>
+  </header>
+  <dl class="exercise-metrics">
+    <div><dd>3</dd><dt>Série</dt></div>
+    <div><dd>6–8</dd><dt>Opakování</dt></div>
+    <div class="exercise-rpe"><dd>8</dd><dt>Cílové RPE</dt></div>
+  </dl>
+  <p class="notes">Pauza 2–3 minuty; ukonči při ztrátě stabilní pozice trupu; <a href="https://www.youtube.com/shorts/oQwnGfZFfzw" target="_blank" rel="noreferrer">technika</a></p>
+  <aside class="exercise-history" aria-label="Minulé výkony">
+  <p class="exercise-history-latest"><strong>Minule:</strong> 8. 9. 2026 · tento blok · dokončeno<br>
+    Zátěž: 17,5 + 17,5 kg kotoučů + 20 kg osa = 55 kg celkem · Série: 3 · Opakování / výdrž: 7, 8, 8 · RPE: 8, 8, 8</p>
+  <details class="exercise-history-details">
+    <summary>Historie cviku (1)</summary>
+    <ol><li>
+  <p class="exercise-history-context">8. 9. 2026 · tento blok · dokončeno</p>
+  <p>Zátěž: 17,5 + 17,5 kg kotoučů + 20 kg osa = 55 kg celkem · Série: 3 · Opakování / výdrž: 7, 8, 8 · RPE: 8, 8, 8</p>
+  <p>Dnes proveden Romanian deadlift; uživatel upřesnil, že při minulém A dne 1. 9. 2026 omylem cvičil klasický deadlift</p>
+  <p class="exercise-history-source">Zdroj: <code>activities/2026/2026-09-08-strength-A.md</code></p>
+</li>
+</ol>
+  </details>
+</aside>
+
+</article>
+<article class="exercise">
+  <header class="exercise-heading">
+    <span class="exercise-position">3</span>
+    <h3>Barbell reverse lunge</h3>
+  </header>
+  <dl class="exercise-metrics">
+    <div><dd>2</dd><dt>Série</dt></div>
+    <div><dd>8 na každou stranu</dd><dt>Opakování</dt></div>
+    <div class="exercise-rpe"><dd>8</dd><dt>Cílové RPE</dt></div>
+  </dl>
+  <p class="notes">Pauza 90–120 sekund; kontrolovaný krok vzad</p>
+  <aside class="exercise-history" aria-label="Minulé výkony">
+  <p class="exercise-history-latest"><strong>Minule:</strong> 8. 9. 2026 · tento blok · dokončeno<br>
+    Zátěž: 10 + 10 kg kotoučů + 20 kg osa = 40 kg celkem · Série: 2 · Opakování / výdrž: 8+8, 8+8 · RPE: 8, 8</p>
+  <details class="exercise-history-details">
+    <summary>Historie cviku (2)</summary>
+    <ol><li>
+  <p class="exercise-history-context">8. 9. 2026 · tento blok · dokončeno</p>
+  <p>Zátěž: 10 + 10 kg kotoučů + 20 kg osa = 40 kg celkem · Série: 2 · Opakování / výdrž: 8+8, 8+8 · RPE: 8, 8</p>
+  <p>Opakování vlevo + vpravo; obě předepsané série dokončeny</p>
+  <p class="exercise-history-source">Zdroj: <code>activities/2026/2026-09-08-strength-A.md</code></p>
+</li>
+<li>
+  <p class="exercise-history-context">1. 9. 2026 · tento blok · dokončeno</p>
+  <p>Zátěž: 10 + 10 kg kotoučů + 20 kg osa = 40 kg celkem · Série: 3 · Opakování / výdrž: 7+7, 7+7, 7+7 · RPE: 8–9</p>
+  <p>Omylem odcvičena jedna série navíc oproti plánu; opakování vlevo + vpravo</p>
+  <p class="exercise-history-source">Zdroj: <code>activities/2026/2026-09-01-strength-A.md</code></p>
+</li>
+</ol>
+  </details>
+</aside>
+
+</article>
+<article class="exercise">
+  <header class="exercise-heading">
+    <span class="exercise-position">4</span>
+    <h3>Long-lever plank</h3>
+  </header>
+  <dl class="exercise-metrics">
+    <div><dd>3</dd><dt>Série</dt></div>
+    <div><dd>20–40 sekund</dd><dt>Opakování</dt></div>
+    <div class="exercise-rpe"><dd>8</dd><dt>Cílové RPE</dt></div>
+  </dl>
+  <p class="notes">Pauza 60–90 sekund; <a href="https://www.youtube.com/results?search_query=long+lever+plank+proper+form" target="_blank" rel="noreferrer">technika</a></p>
+  <aside class="exercise-history" aria-label="Minulé výkony">
+  <p class="exercise-history-latest"><strong>Minule:</strong> 8. 9. 2026 · tento blok · dokončeno<br>
+    Zátěž: vlastní hmotnost · Série: 3 · Opakování / výdrž: 40 s, 37 s, 33 s · RPE: 8, 8, 8</p>
+  <details class="exercise-history-details">
+    <summary>Historie cviku (2)</summary>
+    <ol><li>
+  <p class="exercise-history-context">8. 9. 2026 · tento blok · dokončeno</p>
+  <p>Zátěž: vlastní hmotnost · Série: 3 · Opakování / výdrž: 40 s, 37 s, 33 s · RPE: 8, 8, 8</p>
+  <p>Všechny tři série v předepsaném rozsahu výdrže</p>
+  <p class="exercise-history-source">Zdroj: <code>activities/2026/2026-09-08-strength-A.md</code></p>
+</li>
+<li>
+  <p class="exercise-history-context">1. 9. 2026 · tento blok · dokončeno</p>
+  <p>Zátěž: vlastní hmotnost · Série: 3 · Opakování / výdrž: 30 s, 32 s, 32 s · RPE: 8</p>
+  <p>Dokončeny všechny tři předepsané série</p>
+  <p class="exercise-history-source">Zdroj: <code>activities/2026/2026-09-01-strength-A.md</code></p>
+</li>
+</ol>
+  </details>
+</aside>
+
+</article>
+</div></div>
+          </details>
+          
+        </section>
+      
+
+      <section class="guidance-list" aria-label="Doplňující informace k bloku">
+        <p class="section-label">Informace k bloku</p>
+        <section class="guidance" data-guidance="progression">
+  <h2>Jak postupovat v bloku</h2>
+  <ul><li>Při první A, B a C zvol zátěž nebo obtížnost, která dovolí spodní hranici rozsahu při cílovém RPE.</li><li>Při dalším výskytu stejné šablony nejprve přidávej opakování. Jakmile zvládneš horní hranici ve všech pracovních sériích při předepsaném RPE, příště zvol nejmenší praktické zvýšení zátěže a vrať se ke spodní hranici.</li><li>U Ring row zvyš obtížnost posunem chodidel. U Ring chin-up a Strict ring dips přidej zátěž pomocí dip beltu až tehdy, když zvládneš všechny série na horní hranici při RPE nejvýše 8 a stabilní technice.</li><li>U Long-lever planku po zvládnutí 3 × 40 sekund při RPE nejvýše 8 posuň lokty o malý kus dopředu a vrať se přibližně k 20 sekundám.</li><li>Pokud dvě po sobě jdoucí jednotky překročí cílové RPE o více než jeden bod, klesá počet opakování, zhoršuje se technika nebo se objeví bolest, sniž zátěž nebo odeber jednu pracovní sérii. Změnu zapiš.</li><li>Čtvrtý týden není automatický deload. O úpravě rozhodne skutečná únava a výkon v session logu.</li></ul>
+</section>
+
+        <section class="guidance" data-guidance="optional-cardio">
+  <h2>Volitelné kardio</h2>
+  <p>Volitelné kardio není součástí adherence silového bloku a můžeš je spontánně vynechat.</p><ul><li>Doporučená modalita: venkovní běh, silniční nebo trekové kolo</li><li>Orientační délka: 20–60 minut</li><li>Intenzita: lehká až střední, přibližně RPE 4–6</li><li>Bez pevně určeného dne nebo počtu jednotek. Pokud zůstává únava nohou před A nebo C, kardio zkrať, zvolni nebo vynech.</li><li>Indoor cyklistika se v tomto bloku nepředepisuje jako samostatná jednotka.</li></ul>
+</section>
+
+      </section>
+    </main>
+  </body>
+</html>
